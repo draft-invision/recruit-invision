@@ -1,0 +1,12 @@
+{
+  "name": "invision-recruit",
+  "version": "1.0.0",
+  "description": "インビジョン 採用管理システム",
+  "scripts": {
+    "start": "npx live-server --port=3000 --open=index.html",
+    "dev": "npx live-server --port=3000 --open=index.html"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
