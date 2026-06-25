@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログイン | インビジョン 採用管理</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    .app-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 32px;
+    }
+    .form-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 20px;
+    }
+    .input-group { margin-bottom: 14px; }
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      color: #1e293b;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+    input::placeholder { color: #94a3b8; }
+    input:focus { border-color: #6366f1; }
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: #1e1b4b;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s;
+      font-family: inherit;
+    }
+    .btn:hover { background: #312e81; }
+    .btn:disabled { background: #94a3b8; cursor: not-allowed; }
+    .footer-text {
+      text-align: center;
+      margin-top: 20px;
+      color: #64748b;
+      font-size: 14px;
+    }
+    .footer-text a {
+      color: #6366f1;
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .footer-text a:hover { text-decoration: underline; }
+    .msg {
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .msg.error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .msg.success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="app-title">インビジョン 採用管理</div>
+
+    <!-- ログインフォーム -->
+    <div id="login-section">
+      <div class="form-title">ログイン</div>
+      <div class="msg error" id="login-error"></div>
+      <form id="login-form">
+        <div class="input-group">
+          <input type="email" id="login-email" placeholder="メールアドレス" required autocomplete="email">
+        </div>
+        <div class="input-group">
+          <input type="password" id="login-password" placeholder="パスワード" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn" id="login-btn">ログイン</button>
+      </form>
+      <p class="footer-text">アカウントがない？ <a onclick="showSection('register')">登録する</a></p>
+    </div>
+
+    <!-- 登録フォーム -->
+    <div id="register-section" style="display:none">
+      <div class="form-title">アカウント登録</div>
+      <div class="msg error" id="register-error"></div>
+      <div class="msg success" id="register-success"></div>
+      <form id="register-form">
+        <div class="input-group">
+          <input type="email" id="reg-email" placeholder="メールアドレス" required autocomplete="email">
+        </div>
+        <div class="input-group">
+          <input type="password" id="reg-password" placeholder="パスワード（8文字以上）" required minlength="8" autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn" id="register-btn">登録する</button>
+      </form>
+      <p class="footer-text">すでにアカウントがある？ <a onclick="showSection('login')">ログイン</a></p>
+    </div>
+  </div>
+
+  <script>
+    const API = window.location.origin + '/.netlify/identity';
+
+    function showSection(name) {
+      document.getElementById('login-section').style.display = name === 'login' ? '' : 'none';
+      document.getElementById('register-section').style.display = name === 'register' ? '' : 'none';
+    }
+
+    function showMsg(id, text, type) {
+      var el = document.getElementById(id);
+      el.textContent = text;
+      el.className = 'msg ' + type;
+      el.style.display = 'block';
+    }
+
+    // すでにログイン済みならトップへ
+    if (localStorage.getItem('nf_token') && Date.now() < parseInt(localStorage.getItem('nf_token_exp') || '0', 10)) {
+      window.location.href = '/';
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      document.getElementById('login-error').style.display = 'none';
+      var btn = document.getElementById('login-btn');
+      btn.disabled = true;
+      btn.textContent = 'ログイン中...';
+
+      var email = document.getElementById('login-email').value;
+      var password = document.getElementById('login-password').value;
+
+      try {
+        var res = await fetch(API + '/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'grant_type=password&username=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(password)
+        });
+        if (res.ok) {
+          var data = await res.json();
+          localStorage.setItem('nf_token', data.access_token);
+          localStorage.setItem('nf_token_exp', Date.now() + data.expires_in * 1000);
+          window.location.href = '/';
+        } else {
+          showMsg('login-error', 'メールアドレスまたはパスワードが正しくありません。', 'error');
+        }
+      } catch (err) {
+        showMsg('login-error', 'ネットワークエラーが発生しました。', 'error');
+      }
+      btn.disabled = false;
+      btn.textContent = 'ログイン';
+    });
+
+    document.getElementById('register-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      document.getElementById('register-error').style.display = 'none';
+      document.getElementById('register-success').style.display = 'none';
+      var btn = document.getElementById('register-btn');
+      btn.disabled = true;
+      btn.textContent = '登録中...';
+
+      var email = document.getElementById('reg-email').value;
+      var password = document.getElementById('reg-password').value;
+
+      try {
+        var res = await fetch(API + '/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: password })
+        });
+        if (res.ok) {
+          document.getElementById('register-form').style.display = 'none';
+          showMsg('register-success', '登録完了！確認メールを送信しました。メール内のリンクをクリックしてアカウントを有効化してください。', 'success');
+        } else {
+          var err = await res.json();
+          showMsg('register-error', err.msg || '登録に失敗しました。もう一度お試しください。', 'error');
+        }
+      } catch (err) {
+        showMsg('register-error', 'ネットワークエラーが発生しました。', 'error');
+      }
+      btn.disabled = false;
+      btn.textContent = '登録する';
+    });
+  </script>
+</body>
+</html>
