@@ -633,7 +633,7 @@ body { visibility: hidden; }
 
 <script>
 (function() {
-  var ADMIN = 'yasuda@invision-inc.jp';
+  var ADMINS = ['yasuda@invision-inc.jp', 'recruit@invision-inc.jp'];
 
   /* ---- Account Panel ---- */
   async function initPanel() {
@@ -644,7 +644,7 @@ body { visibility: hidden; }
     document.getElementById('acct-name').textContent = email.split('@')[0];
     document.getElementById('acct-sub').textContent = email;
     document.getElementById('acct-menu-em').textContent = email;
-    if (email === ADMIN) document.getElementById('btn-admin').style.display = 'flex';
+    if (ADMINS.indexOf(email) > -1) document.getElementById('btn-admin').style.display = 'flex';
     try {
       await window._sb.from('profiles').upsert(
         { id: res.data.session.user.id, email: email, last_seen_at: new Date().toISOString() },
@@ -704,7 +704,7 @@ body { visibility: hidden; }
       return;
     }
     var rows = (res.data || []).map(function(u) {
-      var badge = u.email === ADMIN ? '<span class="a-badge">管理者</span>' : '';
+      var badge = ADMINS.indexOf(u.email) > -1 ? '<span class="a-badge">管理者</span>' : '';
       return '<tr><td>' + u.email + badge + '</td><td>' + (u.created_at || '').slice(0, 10) + '</td><td>' + (u.last_seen_at || '').slice(0, 16).replace('T', ' ') + '</td></tr>';
     }).join('') || '<tr><td colspan="3" style="color:var(--tx3)">まだユーザーがいません</td></tr>';
     document.getElementById('admin-content').innerHTML =
