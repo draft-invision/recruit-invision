@@ -5,17 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>インビジョン 採用管理</title>
 <link rel="stylesheet" href="src/style.css">
-<script>
-(function(){
-  var token = localStorage.getItem('nf_token');
-  var exp = parseInt(localStorage.getItem('nf_token_exp') || '0', 10);
-  if (!token || Date.now() > exp) {
-    localStorage.removeItem('nf_token');
-    localStorage.removeItem('nf_token_exp');
-    window.location.href = '/login.html';
-  }
-})();
-</script>
 </head>
 <body>
 
@@ -534,20 +523,5 @@
 </div>
 
 <script src="src/main.js"></script>
-<script>
-(function(){
-  var btn = document.createElement('button');
-  btn.textContent = 'ログアウト';
-  btn.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;background:#1e1b4b;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
-  btn.onmouseenter = function(){ this.style.background='#312e81'; };
-  btn.onmouseleave = function(){ this.style.background='#1e1b4b'; };
-  btn.onclick = function(){
-    localStorage.removeItem('nf_token');
-    localStorage.removeItem('nf_token_exp');
-    window.location.href = '/login.html';
-  };
-  document.body.appendChild(btn);
-})();
-</script>
 </body>
 </html>
