@@ -5,6 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>インビジョン 採用管理</title>
 <link rel="stylesheet" href="src/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+window._sb = supabase.createClient(
+  'https://zktnhqpdybdhhrrrgcyg.supabase.co',
+  'sb_publishable_dlfTNaH4qzOf_J2WCA6PYQ_80AnKxHy'
+);
+document.addEventListener('DOMContentLoaded', async function() {
+  var res = await window._sb.auth.getSession();
+  if (!res.data.session) {
+    window.location.href = './login.html';
+  } else {
+    document.body.style.visibility = 'visible';
+  }
+});
+</script>
+<style>body { visibility: hidden; }</style>
 </head>
 <body>
 
@@ -523,5 +539,19 @@
 </div>
 
 <script src="src/main.js"></script>
+<script>
+(function() {
+  var btn = document.createElement('button');
+  btn.textContent = 'ログアウト';
+  btn.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;background:#1e1b4b;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
+  btn.onmouseenter = function() { this.style.background = '#312e81'; };
+  btn.onmouseleave = function() { this.style.background = '#1e1b4b'; };
+  btn.onclick = async function() {
+    await window._sb.auth.signOut();
+    window.location.href = './login.html';
+  };
+  document.body.appendChild(btn);
+})();
+</script>
 </body>
 </html>

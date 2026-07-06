@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ログイン | インビジョン 採用管理</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -84,7 +85,7 @@
       margin-bottom: 14px;
       display: none;
     }
-    .msg.error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .msg.error  { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
     .msg.success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
   </style>
 </head>
@@ -111,7 +112,7 @@
     <!-- 登録フォーム -->
     <div id="register-section" style="display:none">
       <div class="form-title">アカウント登録</div>
-      <div class="msg error" id="register-error"></div>
+      <div class="msg error"   id="register-error"></div>
       <div class="msg success" id="register-success"></div>
       <form id="register-form">
         <div class="input-group">
@@ -127,10 +128,13 @@
   </div>
 
   <script>
-    const API = window.location.origin + '/.netlify/identity';
+    const sb = supabase.createClient(
+      'https://zktnhqpdybdhhrrrgcyg.supabase.co',
+      'sb_publishable_dlfTNaH4qzOf_J2WCA6PYQ_80AnKxHy'
+    );
 
     function showSection(name) {
-      document.getElementById('login-section').style.display = name === 'login' ? '' : 'none';
+      document.getElementById('login-section').style.display    = name === 'login'    ? '' : 'none';
       document.getElementById('register-section').style.display = name === 'register' ? '' : 'none';
     }
 
@@ -141,71 +145,51 @@
       el.style.display = 'block';
     }
 
-    // すでにログイン済みならトップへ
-    if (localStorage.getItem('nf_token') && Date.now() < parseInt(localStorage.getItem('nf_token_exp') || '0', 10)) {
-      window.location.href = '/';
-    }
+    function hideMsg(id) { document.getElementById(id).style.display = 'none'; }
 
-    document.getElementById('login-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      document.getElementById('login-error').style.display = 'none';
-      var btn = document.getElementById('login-btn');
-      btn.disabled = true;
-      btn.textContent = 'ログイン中...';
-
-      var email = document.getElementById('login-email').value;
-      var password = document.getElementById('login-password').value;
-
-      try {
-        var res = await fetch(API + '/token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: 'grant_type=password&username=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(password)
-        });
-        if (res.ok) {
-          var data = await res.json();
-          localStorage.setItem('nf_token', data.access_token);
-          localStorage.setItem('nf_token_exp', Date.now() + data.expires_in * 1000);
-          window.location.href = '/';
-        } else {
-          showMsg('login-error', 'メールアドレスまたはパスワードが正しくありません。', 'error');
-        }
-      } catch (err) {
-        showMsg('login-error', 'ネットワークエラーが発生しました。', 'error');
-      }
-      btn.disabled = false;
-      btn.textContent = 'ログイン';
+    // ログイン済みならアプリへ
+    sb.auth.getSession().then(function(res) {
+      if (res.data.session) window.location.href = './';
     });
 
+    // ログイン処理
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      hideMsg('login-error');
+      var btn = document.getElementById('login-btn');
+      btn.disabled = true; btn.textContent = 'ログイン中...';
+
+      var email    = document.getElementById('login-email').value;
+      var password = document.getElementById('login-password').value;
+
+      var res = await sb.auth.signInWithPassword({ email: email, password: password });
+      if (res.error) {
+        showMsg('login-error', 'メールアドレスまたはパスワードが正しくありません。', 'error');
+        btn.disabled = false; btn.textContent = 'ログイン';
+      } else {
+        window.location.href = './';
+      }
+    });
+
+    // 登録処理
     document.getElementById('register-form').addEventListener('submit', async function(e) {
       e.preventDefault();
-      document.getElementById('register-error').style.display = 'none';
-      document.getElementById('register-success').style.display = 'none';
+      hideMsg('register-error');
+      hideMsg('register-success');
       var btn = document.getElementById('register-btn');
-      btn.disabled = true;
-      btn.textContent = '登録中...';
+      btn.disabled = true; btn.textContent = '登録中...';
 
-      var email = document.getElementById('reg-email').value;
+      var email    = document.getElementById('reg-email').value;
       var password = document.getElementById('reg-password').value;
 
-      try {
-        var res = await fetch(API + '/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email, password: password })
-        });
-        if (res.ok) {
-          document.getElementById('register-form').style.display = 'none';
-          showMsg('register-success', '登録完了！確認メールを送信しました。メール内のリンクをクリックしてアカウントを有効化してください。', 'success');
-        } else {
-          var err = await res.json();
-          showMsg('register-error', err.msg || '登録に失敗しました。もう一度お試しください。', 'error');
-        }
-      } catch (err) {
-        showMsg('register-error', 'ネットワークエラーが発生しました。', 'error');
+      var res = await sb.auth.signUp({ email: email, password: password });
+      if (res.error) {
+        showMsg('register-error', res.error.message, 'error');
+        btn.disabled = false; btn.textContent = '登録する';
+      } else {
+        document.getElementById('register-form').style.display = 'none';
+        showMsg('register-success', '登録完了！「ログイン」からメールアドレスとパスワードでログインしてください。', 'success');
       }
-      btn.disabled = false;
-      btn.textContent = '登録する';
     });
   </script>
 </body>
