@@ -6,7 +6,7 @@
   <title>ログイン | インビジョン 採用管理</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       min-height: 100vh;
       background: #f1f5f9;
@@ -16,181 +16,202 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
     }
     .card {
-      background: white;
+      background: #fff;
       border-radius: 16px;
-      padding: 48px 40px;
+      padding: 44px 40px 40px;
       width: 100%;
-      max-width: 480px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      max-width: 460px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
     }
-    .app-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 32px;
-    }
-    .form-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 20px;
-    }
-    .input-group { margin-bottom: 14px; }
+    .app-title { font-size: 20px; font-weight: 700; color: #1a1917; margin-bottom: 28px; }
+    .form-title { font-size: 18px; font-weight: 700; color: #1a1917; margin-bottom: 18px; }
+    .form-desc { font-size: 13px; color: #6b6860; line-height: 1.6; margin-bottom: 16px; }
+    .ig { margin-bottom: 12px; }
     input {
-      width: 100%;
-      padding: 14px 16px;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 10px;
-      font-size: 15px;
-      outline: none;
-      color: #1e293b;
-      transition: border-color 0.2s;
-      font-family: inherit;
+      width: 100%; padding: 13px 15px;
+      border: 1.5px solid #ccc9be; border-radius: 8px;
+      font-size: 14px; outline: none; color: #1a1917;
+      transition: border-color .15s; font-family: inherit;
+      background: #fff;
     }
-    input::placeholder { color: #94a3b8; }
+    input::placeholder { color: #9e9b93; }
     input:focus { border-color: #6366f1; }
     .btn {
-      width: 100%;
-      padding: 15px;
-      background: #1e1b4b;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: background 0.2s;
-      font-family: inherit;
+      width: 100%; padding: 14px;
+      background: #1e1b4b; color: #fff;
+      border: none; border-radius: 8px;
+      font-size: 15px; font-weight: 600;
+      cursor: pointer; margin-top: 6px;
+      transition: background .15s; font-family: inherit;
     }
     .btn:hover { background: #312e81; }
-    .btn:disabled { background: #94a3b8; cursor: not-allowed; }
-    .footer-text {
-      text-align: center;
-      margin-top: 20px;
-      color: #64748b;
-      font-size: 14px;
-    }
-    .footer-text a {
-      color: #6366f1;
-      text-decoration: none;
-      font-weight: 500;
-      cursor: pointer;
-    }
-    .footer-text a:hover { text-decoration: underline; }
-    .msg {
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-size: 13px;
-      margin-bottom: 14px;
-      display: none;
-    }
-    .msg.error  { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
-    .msg.success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+    .btn:disabled { background: #9e9b93; cursor: not-allowed; }
+    .foot { text-align: center; margin-top: 18px; font-size: 13px; color: #6b6860; }
+    .foot a { color: #6366f1; text-decoration: none; cursor: pointer; font-weight: 500; }
+    .foot a:hover { text-decoration: underline; }
+    .msg { border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 12px; display: none; line-height: 1.5; }
+    .msg.error   { background: #fcebeb; color: #A32D2D; border: 1px solid #f7c1c1; }
+    .msg.success { background: #eaf3de; color: #3B6D11; border: 1px solid #c6e5a0; }
+    .divider { height: 1px; background: #e4e1d8; margin: 20px 0; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="app-title">インビジョン 採用管理</div>
+<div class="card">
+  <div class="app-title">インビジョン 採用管理</div>
 
-    <!-- ログインフォーム -->
-    <div id="login-section">
-      <div class="form-title">ログイン</div>
-      <div class="msg error" id="login-error"></div>
-      <form id="login-form">
-        <div class="input-group">
-          <input type="email" id="login-email" placeholder="メールアドレス" required autocomplete="email">
-        </div>
-        <div class="input-group">
-          <input type="password" id="login-password" placeholder="パスワード" required autocomplete="current-password">
-        </div>
-        <button type="submit" class="btn" id="login-btn">ログイン</button>
-      </form>
-      <p class="footer-text">アカウントがない？ <a onclick="showSection('register')">登録する</a></p>
-    </div>
-
-    <!-- 登録フォーム -->
-    <div id="register-section" style="display:none">
-      <div class="form-title">アカウント登録</div>
-      <div class="msg error"   id="register-error"></div>
-      <div class="msg success" id="register-success"></div>
-      <form id="register-form">
-        <div class="input-group">
-          <input type="email" id="reg-email" placeholder="メールアドレス" required autocomplete="email">
-        </div>
-        <div class="input-group">
-          <input type="password" id="reg-password" placeholder="パスワード（8文字以上）" required minlength="8" autocomplete="new-password">
-        </div>
-        <button type="submit" class="btn" id="register-btn">登録する</button>
-      </form>
-      <p class="footer-text">すでにアカウントがある？ <a onclick="showSection('login')">ログイン</a></p>
-    </div>
+  <!-- ① ログイン -->
+  <div id="sec-login">
+    <div class="form-title">ログイン</div>
+    <div class="msg error" id="login-err"></div>
+    <form id="f-login">
+      <div class="ig"><input type="email"    id="l-email" placeholder="メールアドレス" required autocomplete="email"></div>
+      <div class="ig"><input type="password" id="l-pw"    placeholder="パスワード"       required autocomplete="current-password"></div>
+      <button type="submit" class="btn" id="l-btn">ログイン</button>
+    </form>
+    <div class="foot"><a onclick="show('reset')">パスワードを忘れた</a></div>
+    <div class="divider"></div>
+    <div class="foot">アカウントがない？ <a onclick="show('register')">登録する</a></div>
   </div>
 
-  <script>
-    const sb = supabase.createClient(
-      'https://zktnhqpdybdhhrrrgcyg.supabase.co',
-      'sb_publishable_dlfTNaH4qzOf_J2WCA6PYQ_80AnKxHy'
+  <!-- ② 新規登録 -->
+  <div id="sec-register" style="display:none">
+    <div class="form-title">アカウント登録</div>
+    <div class="msg error"   id="reg-err"></div>
+    <div class="msg success" id="reg-ok"></div>
+    <form id="f-register">
+      <div class="ig"><input type="email"    id="r-email" placeholder="メールアドレス"           required autocomplete="email"></div>
+      <div class="ig"><input type="password" id="r-pw"    placeholder="パスワード（8文字以上）" required minlength="8" autocomplete="new-password"></div>
+      <button type="submit" class="btn" id="r-btn">登録する</button>
+    </form>
+    <div class="foot">すでにアカウントがある？ <a onclick="show('login')">ログイン</a></div>
+  </div>
+
+  <!-- ③ パスワードリセット申請 -->
+  <div id="sec-reset" style="display:none">
+    <div class="form-title">パスワードを再設定</div>
+    <div class="form-desc">登録済みのメールアドレスを入力してください。再設定用のリンクをお送りします。</div>
+    <div class="msg error"   id="rst-err"></div>
+    <div class="msg success" id="rst-ok"></div>
+    <form id="f-reset">
+      <div class="ig"><input type="email" id="rst-email" placeholder="メールアドレス" required autocomplete="email"></div>
+      <button type="submit" class="btn" id="rst-btn">リセットメールを送信</button>
+    </form>
+    <div class="foot"><a onclick="show('login')">← ログインに戻る</a></div>
+  </div>
+
+  <!-- ④ 新パスワード設定（メールのリンク経由） -->
+  <div id="sec-newpw" style="display:none">
+    <div class="form-title">新しいパスワードを設定</div>
+    <div class="msg error"   id="npw-err"></div>
+    <div class="msg success" id="npw-ok"></div>
+    <form id="f-newpw">
+      <div class="ig"><input type="password" id="npw-1" placeholder="新しいパスワード（8文字以上）" required minlength="8"></div>
+      <div class="ig"><input type="password" id="npw-2" placeholder="新しいパスワード（確認）"       required></div>
+      <button type="submit" class="btn" id="npw-btn">パスワードを更新</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  var sb = supabase.createClient(
+    'https://zktnhqpdybdhhrrrgcyg.supabase.co',
+    'sb_publishable_dlfTNaH4qzOf_J2WCA6PYQ_80AnKxHy'
+  );
+
+  var SECS = ['login','register','reset','newpw'];
+  function show(name) {
+    SECS.forEach(function(s) {
+      document.getElementById('sec-' + s).style.display = s === name ? '' : 'none';
+    });
+  }
+  function showMsg(id, text, type) {
+    var el = document.getElementById(id);
+    el.textContent = text; el.className = 'msg ' + type; el.style.display = 'block';
+  }
+  function hideMsg(id) { document.getElementById(id).style.display = 'none'; }
+
+  // パスワードリカバリートークンを検出
+  var hash = window.location.hash || '';
+  var search = window.location.search || '';
+  if (hash.indexOf('type=recovery') > -1 || search.indexOf('type=recovery') > -1) {
+    show('newpw');
+  } else {
+    sb.auth.getSession().then(function(r) {
+      if (r.data.session) window.location.href = './';
+    });
+  }
+
+  // Supabase がリカバリーセッションを検出したとき
+  sb.auth.onAuthStateChange(function(event) {
+    if (event === 'PASSWORD_RECOVERY') show('newpw');
+  });
+
+  // ① ログイン
+  document.getElementById('f-login').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    hideMsg('login-err');
+    var btn = document.getElementById('l-btn');
+    btn.disabled = true; btn.textContent = 'ログイン中…';
+    var res = await sb.auth.signInWithPassword({
+      email: document.getElementById('l-email').value,
+      password: document.getElementById('l-pw').value
+    });
+    if (res.error) {
+      showMsg('login-err', 'メールアドレスまたはパスワードが正しくありません。', 'error');
+      btn.disabled = false; btn.textContent = 'ログイン';
+    } else {
+      window.location.href = './';
+    }
+  });
+
+  // ② 新規登録
+  document.getElementById('f-register').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    hideMsg('reg-err'); hideMsg('reg-ok');
+    var btn = document.getElementById('r-btn');
+    btn.disabled = true; btn.textContent = '登録中…';
+    var res = await sb.auth.signUp({
+      email: document.getElementById('r-email').value,
+      password: document.getElementById('r-pw').value
+    });
+    btn.disabled = false; btn.textContent = '登録する';
+    if (res.error) { showMsg('reg-err', res.error.message, 'error'); }
+    else {
+      document.getElementById('f-register').style.display = 'none';
+      showMsg('reg-ok', '登録完了！「ログイン」からメールアドレスとパスワードでログインしてください。', 'success');
+    }
+  });
+
+  // ③ パスワードリセット申請
+  document.getElementById('f-reset').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    hideMsg('rst-err'); hideMsg('rst-ok');
+    var btn = document.getElementById('rst-btn');
+    btn.disabled = true; btn.textContent = '送信中…';
+    var redirectTo = window.location.href.split('?')[0].split('#')[0];
+    var res = await sb.auth.resetPasswordForEmail(
+      document.getElementById('rst-email').value,
+      { redirectTo: redirectTo }
     );
+    btn.disabled = false; btn.textContent = 'リセットメールを送信';
+    if (res.error) { showMsg('rst-err', '送信に失敗しました。メールアドレスをご確認ください。', 'error'); }
+    else { showMsg('rst-ok', 'メールを送信しました。受信ボックスをご確認ください（迷惑メールフォルダもご確認ください）。', 'success'); }
+  });
 
-    function showSection(name) {
-      document.getElementById('login-section').style.display    = name === 'login'    ? '' : 'none';
-      document.getElementById('register-section').style.display = name === 'register' ? '' : 'none';
-    }
-
-    function showMsg(id, text, type) {
-      var el = document.getElementById(id);
-      el.textContent = text;
-      el.className = 'msg ' + type;
-      el.style.display = 'block';
-    }
-
-    function hideMsg(id) { document.getElementById(id).style.display = 'none'; }
-
-    // ログイン済みならアプリへ
-    sb.auth.getSession().then(function(res) {
-      if (res.data.session) window.location.href = './';
-    });
-
-    // ログイン処理
-    document.getElementById('login-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      hideMsg('login-error');
-      var btn = document.getElementById('login-btn');
-      btn.disabled = true; btn.textContent = 'ログイン中...';
-
-      var email    = document.getElementById('login-email').value;
-      var password = document.getElementById('login-password').value;
-
-      var res = await sb.auth.signInWithPassword({ email: email, password: password });
-      if (res.error) {
-        showMsg('login-error', 'メールアドレスまたはパスワードが正しくありません。', 'error');
-        btn.disabled = false; btn.textContent = 'ログイン';
-      } else {
-        window.location.href = './';
-      }
-    });
-
-    // 登録処理
-    document.getElementById('register-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      hideMsg('register-error');
-      hideMsg('register-success');
-      var btn = document.getElementById('register-btn');
-      btn.disabled = true; btn.textContent = '登録中...';
-
-      var email    = document.getElementById('reg-email').value;
-      var password = document.getElementById('reg-password').value;
-
-      var res = await sb.auth.signUp({ email: email, password: password });
-      if (res.error) {
-        showMsg('register-error', res.error.message, 'error');
-        btn.disabled = false; btn.textContent = '登録する';
-      } else {
-        document.getElementById('register-form').style.display = 'none';
-        showMsg('register-success', '登録完了！「ログイン」からメールアドレスとパスワードでログインしてください。', 'success');
-      }
-    });
-  </script>
+  // ④ 新パスワード設定
+  document.getElementById('f-newpw').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    hideMsg('npw-err'); hideMsg('npw-ok');
+    var pw1 = document.getElementById('npw-1').value;
+    var pw2 = document.getElementById('npw-2').value;
+    if (pw1 !== pw2) { showMsg('npw-err', 'パスワードが一致しません。', 'error'); return; }
+    var btn = document.getElementById('npw-btn');
+    btn.disabled = true; btn.textContent = '更新中…';
+    var res = await sb.auth.updateUser({ password: pw1 });
+    btn.disabled = false; btn.textContent = 'パスワードを更新';
+    if (res.error) { showMsg('npw-err', '更新に失敗しました: ' + res.error.message, 'error'); }
+    else { showMsg('npw-ok', 'パスワードを更新しました。', 'success'); setTimeout(function() { window.location.href = './'; }, 1500); }
+  });
+</script>
 </body>
 </html>
