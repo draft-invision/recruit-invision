@@ -313,6 +313,27 @@ body { visibility: hidden; }
 </div>
 
 
+<!-- Modal: テンプレートを追加 -->
+<div class="mo" id="modal-add-tpl">
+  <div class="modal" style="width:580px">
+    <div class="mhd"><div class="ttl">テンプレートを追加</div><button class="cls" onclick="document.getElementById('modal-add-tpl').classList.remove('open')">x</button></div>
+    <div class="mbody">
+      <div class="fr">
+        <div class="fg"><label class="fl">ステップ番号</label><input class="fi" id="at-step" placeholder="1.5, 3.5..."></div>
+        <div class="fg"><label class="fl">タグ表示名</label><input class="fi" id="at-tag" placeholder="全員, 通過者のみ..."></div>
+      </div>
+      <div class="fg"><label class="fl">テンプレート名 *</label><input class="fi" id="at-name" placeholder="例：二次面接のご案内"></div>
+      <div class="fg"><label class="fl">ヒント（いつ送るか）</label><input class="fi" id="at-hint" placeholder="例：二次面接通過者のみ"></div>
+      <div class="fg"><label class="fl">件名</label><input class="fi" id="at-subj" placeholder="メールの件名"></div>
+      <div class="fg"><label class="fl">本文</label><textarea class="fi" id="at-body" style="min-height:200px;font-size:13px;line-height:1.8" placeholder="{{氏名}} で差し込み変数を使えます"></textarea></div>
+    </div>
+    <div class="mft">
+      <div style="font-size:11px;color:var(--tx3)">追加したテンプレートはこのブラウザに保存されます</div>
+      <div style="display:flex;gap:8px"><button class="btn btn-s" onclick="document.getElementById('modal-add-tpl').classList.remove('open')">キャンセル</button><button class="btn btn-p" onclick="saveAddTpl()">追加する</button></div>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: 内定者追加・編集 -->
 <div class="mo" id="modal-member">
   <div class="modal" style="width:420px">

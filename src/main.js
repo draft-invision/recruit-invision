@@ -1248,12 +1248,14 @@ document.addEventListener('click',e=>{
   if(e.target===document.getElementById('modal-job'))document.getElementById('modal-job').classList.remove('open');
   if(e.target===document.getElementById('modal-goal'))document.getElementById('modal-goal').classList.remove('open');
   if(e.target===document.getElementById('modal-tpl'))document.getElementById('modal-tpl').classList.remove('open');
+  if(e.target===document.getElementById('modal-add-tpl'))document.getElementById('modal-add-tpl').classList.remove('open');
   if(e.target===document.getElementById('modal-member'))document.getElementById('modal-member').classList.remove('open');
   if(e.target===document.getElementById('modal-etask'))document.getElementById('modal-etask').classList.remove('open');
   if(e.target===document.getElementById('modal-goal'))document.getElementById('modal-goal').classList.remove('open');
 });
 document.getElementById('fd').value=today();
 document.addEventListener('click',function(e){if(e.target&&e.target.classList.contains('train-tab')){showTrainPhase(e.target.getAttribute('data-ph'));}});
+loadCustomTpls();
 go('dash');
 
 // ===== 掲載原稿一覧 =====
@@ -1968,39 +1970,105 @@ var TPLS=[
    body:`{{氏名}} 様\n\n先日はお時間をいただきありがとうございました。\n\n私たち人事の中でも話し合った結果、\n今回は、期待に添えないことになりました。\n\n今回一緒に働くという結果にはなりませんでしたが、\nこれも出会うべくして出会ったご縁だと思っています。\n\nこれからも、何らかの機会があれば、一つのつながりとして、\nインビジョンのことを思い出してもらえると嬉しいです。\n\nまた、詳細の選考理由につきましては開示を控えさせて\nいただいておりますので、併せてご了承ください。\n\nこれからの仕事、人生が、より幸せなものになりますよう。\nインビジョンを知り、少しでも好きになっていただき、\n本当にありがとうございました。\n\n田野\n━━━━━━━━━━━━━━━━━\nインビジョン 採用担当 / recruit@invision-inc.jp\n━━━━━━━━━━━━━━━━━`},
 ];
 function rEmails(c,ta){
-  c.innerHTML=`
-  <div class="shd"><div><div class="sttl">メールテンプレート</div><div class="ssub">全12通 — クリックで展開・コピー</div></div></div>
-  <div style="font-size:10px;
-  c.querySelectorAll('[data-tpl-edit]').forEach(function(btn){
-    btn.addEventListener('click', function(e){
-      e.stopPropagation();
-      openTplEdit(this.getAttribute('data-tpl-edit'));
-    });
-  });font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">選考フロー</div>
-  <div class="el">${TPLS.filter(t=>t.id!=='tA'&&t.id!=='tB').map(eCard).join('')}</div>
-  <div style="margin:16px 0 8px;font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em">辞退受理 / 不採用通知</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">${TPLS.filter(t=>t.id==='tA'||t.id==='tB').map(eCard).join('')}</div>`;
-  c.addEventListener('click',function(e){
-    var btn=e.target.closest('[data-tpl-edit]');
-    if(btn){e.stopPropagation();openTplEdit(btn.getAttribute('data-tpl-edit'));return;}
-  });
+  ta.innerHTML='<button class="btn btn-p" onclick="openAddTplModal()">+ テンプレートを追加</button>';
+  var flow=TPLS.filter(function(t){return t.id!=='tA'&&t.id!=='tB';});
+  var other=TPLS.filter(function(t){return t.id==='tA'||t.id==='tB';});
+  c.innerHTML='<div class="shd"><div><div class="sttl">メールテンプレート</div><div class="ssub">全'+TPLS.length+'通 — クリックで展開・コピー</div></div></div>'
+    +'<div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">選考フロー</div>'
+    +'<div class="el">'+flow.map(eCard).join('')+'</div>'
+    +'<div style="margin:16px 0 8px;font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em">辞退受理 / 不採用通知</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">'+other.map(eCard).join('')+'</div>';
 }
-function eCard(t){return `<div class="ec" id="ec${t.id}">
-  <div class="ehd" onclick="toggleE('${t.id}')">
-    <div class="estep" style="background:${t.sBg};color:${t.sC}">${t.step}</div>
-    <div class="einfo"><div class="en">${t.name}</div><div class="eh">${t.hint}</div></div>
-    <div style="display:flex;gap:5px;align-items:center">${p(t.tag,t.tagC)}
-      <button class="btn btn-s btn-sm" style="margin-left:4px;font-size:11px;padding:3px 10px;border-color:var(--amber);color:var(--amber)" onclick="event.stopPropagation();openTplEdit('${t.id}')">✎ 編集</button>
-    </div>
-    <span class="chev" id="chev${t.id}">▼</span>
-  </div>
-  <div class="ebody" id="eb${t.id}">
-    ${t.reminder?`<div class="rbox">⏰ 面談日プロパティに「当日 8:00」リマインド → 通知が届いたら送信</div>`:''}
-    <div class="subj">件名：<span>${t.subj}</span></div>
-    <div class="btext" id="bt${t.id}">${t.body}</div>
-    <div class="cpr"><span class="vn">{{変数}}を実際の情報に差し替えて送信</span><button class="btn btn-s btn-sm" onclick="copyT('${t.id}')">📋 コピー</button></div>
-  </div>
-</div>`;}
+function eCard(t){return '<div class="ec" id="ec'+t.id+'">'
+  +'<div class="ehd" onclick="toggleE(\''+t.id+'\')">'
+  +'<div class="estep" style="background:'+t.sBg+';color:'+t.sC+'">'+t.step+'</div>'
+  +'<div class="einfo"><div class="en">'+t.name+'</div><div class="eh">'+t.hint+'</div></div>'
+  +'<div style="display:flex;gap:4px;align-items:center;flex-shrink:0">'+p(t.tag,t.tagC)
+  +'<button class="btn btn-s btn-sm copy-btn" id="cbtn'+t.id+'" style="font-size:11px;padding:3px 10px" onclick="event.stopPropagation();copyT(\''+t.id+'\')">📋 コピー</button>'
+  +'<button class="btn btn-s btn-sm" style="font-size:11px;padding:3px 10px;border-color:var(--amber);color:var(--amber)" onclick="event.stopPropagation();openTplEdit(\''+t.id+'\')">✎ 編集</button>'
+  +'</div>'
+  +'<span class="chev" id="chev'+t.id+'">▼</span>'
+  +'</div>'
+  +'<div class="ebody" id="eb'+t.id+'" style="display:none">'
+  +(t.reminder?'<div class="rbox">⏰ 面談日プロパティに「当日 8:00」リマインド → 通知が届いたら送信</div>':'')
+  +'<div class="subj">件名：<span>'+t.subj+'</span></div>'
+  +'<div class="btext" id="bt'+t.id+'">'+t.body+'</div>'
+  +'<div class="cpr"><span class="vn">{{変数}}を実際の情報に差し替えて送信</span></div>'
+  +'</div>'
+  +'</div>';}
+function toggleE(id){
+  var body=document.getElementById('eb'+id);
+  var chev=document.getElementById('chev'+id);
+  if(!body)return;
+  var isOpen=body.style.display!=='none';
+  body.style.display=isOpen?'none':'block';
+  if(chev)chev.textContent=isOpen?'▼':'▲';
+}
+function copyT(id){
+  var t=TPLS.find(function(x){return x.id===id;});
+  if(!t)return;
+  var text=(t.subj&&t.subj!=='（媒体のメッセージ機能 / 件名なし）'?'件名：'+t.subj+'\n\n':'')+t.body;
+  var btn=document.getElementById('cbtn'+id);
+  function flash(){
+    if(!btn)return;
+    var orig=btn.innerHTML;
+    btn.innerHTML='✓ コピー済み';btn.style.borderColor='#4CAF50';btn.style.color='#4CAF50';
+    setTimeout(function(){btn.innerHTML=orig;btn.style.borderColor='';btn.style.color='';},2000);
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(flash).catch(function(){fbCopy(text);flash();});
+  }else{fbCopy(text);flash();}
+}
+function fbCopy(text){
+  var ta=document.createElement('textarea');
+  ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');}catch(e){}
+  document.body.removeChild(ta);
+}
+function loadCustomTpls(){
+  try{
+    var saved=localStorage.getItem('inv_custom_tpls');
+    if(!saved)return;
+    var customs=JSON.parse(saved);
+    var idx=TPLS.findIndex(function(t){return t.id==='tA';});
+    if(idx<0)idx=TPLS.length;
+    customs.forEach(function(t){TPLS.splice(idx++,0,t);});
+  }catch(e){}
+}
+function saveCustomTpls(){
+  try{
+    var customs=TPLS.filter(function(t){return t.id.startsWith('tc');});
+    localStorage.setItem('inv_custom_tpls',JSON.stringify(customs));
+  }catch(e){}
+}
+function openAddTplModal(){
+  ['at-step','at-tag','at-name','at-hint','at-subj','at-body'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.value='';
+  });
+  document.getElementById('modal-add-tpl').classList.add('open');
+}
+function saveAddTpl(){
+  var name=(document.getElementById('at-name').value||'').trim();
+  if(!name){alert('テンプレート名を入力してください');return;}
+  var newId='tc'+Date.now();
+  var idx=TPLS.findIndex(function(t){return t.id==='tA';});
+  if(idx<0)idx=TPLS.length;
+  TPLS.splice(idx,0,{
+    id:newId,
+    step:document.getElementById('at-step').value||'＋',
+    name:name,
+    hint:document.getElementById('at-hint').value||'',
+    sBg:'#E6F1FB',sC:'#185FA5',
+    tag:document.getElementById('at-tag').value||'カスタム',
+    tagC:'p-bl',ok:true,
+    subj:document.getElementById('at-subj').value||'',
+    body:document.getElementById('at-body').value||''
+  });
+  saveCustomTpls();
+  document.getElementById('modal-add-tpl').classList.remove('open');
+  render('emails');
+}
 function selectTrainMember(id){curTrainMemberId=id;render('training');}
 function deleteTrainMember(id){
   if(!confirm('この内定者のシートを削除しますか？'))return;
@@ -2158,6 +2226,7 @@ document.addEventListener('click',e=>{
   if(e.target===document.getElementById('modal-job'))document.getElementById('modal-job').classList.remove('open');
   if(e.target===document.getElementById('modal-goal'))document.getElementById('modal-goal').classList.remove('open');
   if(e.target===document.getElementById('modal-tpl'))document.getElementById('modal-tpl').classList.remove('open');
+  if(e.target===document.getElementById('modal-add-tpl'))document.getElementById('modal-add-tpl').classList.remove('open');
   if(e.target===document.getElementById('modal-member'))document.getElementById('modal-member').classList.remove('open');
   if(e.target===document.getElementById('modal-etask'))document.getElementById('modal-etask').classList.remove('open');
   if(e.target===document.getElementById('modal-goal'))document.getElementById('modal-goal').classList.remove('open');
