@@ -619,6 +619,7 @@ function render(v){
   else if(v==='kpi')rKpi(c,ta);
   else if(v==='criteria')rCriteria(c,ta);
   else if(v==='persona')rPersona(c,ta);
+  persist();
 }
 
 // ===== DASHBOARD =====
@@ -1256,7 +1257,10 @@ document.addEventListener('click',e=>{
 document.getElementById('fd').value=today();
 document.addEventListener('click',function(e){if(e.target&&e.target.classList.contains('train-tab')){showTrainPhase(e.target.getAttribute('data-ph'));}});
 loadCustomTpls();
-go('dash');
+(async function(){
+  await loadPersistedData();
+  go('dash');
+})();
 
 // ===== 掲載原稿一覧 =====
 var jobList=[
@@ -3279,5 +3283,61 @@ function saveIntDate(appId, field, val){
   if(!a)return;
   a[field]=val;
   render('detail');
+}
+
+// ===== SUPABASE DATA PERSISTENCE =====
+var _dataLoaded=false;
+var _persistTimer=null;
+
+function persist(){
+  if(!_dataLoaded)return;
+  clearTimeout(_persistTimer);
+  _persistTimer=setTimeout(function(){
+    if(!window._sb)return;
+    var state=[
+      {key:'apps',         value:apps},
+      {key:'nxtId',        value:nxtId},
+      {key:'nxtK',         value:nxtK},
+      {key:'sheets',       value:sheets},
+      {key:'jobList',      value:jobList},
+      {key:'trainMembers', value:trainMembers},
+      {key:'nxtMemberId',  value:nxtMemberId},
+      {key:'kpiG',         value:kpiG},
+      {key:'flowSteps',    value:flowSteps},
+      {key:'funnelHistory',value:funnelHistory||[]},
+      {key:'criteriaItems',value:criteriaItems||[]},
+      {key:'personaList',  value:personaList||[]}
+    ];
+    window._sb.from('app_state').upsert(state,{onConflict:'key'}).then(function(r){
+      if(r.error)console.warn('[persist]',r.error.message);
+    });
+  },1000);
+}
+
+async function loadPersistedData(){
+  if(!window._sb){_dataLoaded=true;return;}
+  try{
+    var r=await window._sb.from('app_state').select('key,value');
+    if(r.error){console.warn('[load]',r.error.message);_dataLoaded=true;return;}
+    (r.data||[]).forEach(function(row){
+      try{
+        switch(row.key){
+          case 'apps':         if(Array.isArray(row.value))apps=row.value;break;
+          case 'nxtId':        if(typeof row.value==='number')nxtId=row.value;break;
+          case 'nxtK':         if(typeof row.value==='number')nxtK=row.value;break;
+          case 'sheets':       if(Array.isArray(row.value))sheets=row.value;break;
+          case 'jobList':      if(Array.isArray(row.value)&&row.value.length)jobList=row.value;break;
+          case 'trainMembers': if(Array.isArray(row.value))trainMembers=row.value;break;
+          case 'nxtMemberId':  if(typeof row.value==='number')nxtMemberId=row.value;break;
+          case 'kpiG':         if(row.value&&typeof row.value==='object')Object.assign(kpiG,row.value);break;
+          case 'flowSteps':    if(Array.isArray(row.value)&&row.value.length)flowSteps=row.value;break;
+          case 'funnelHistory':if(Array.isArray(row.value))funnelHistory=row.value;break;
+          case 'criteriaItems':if(Array.isArray(row.value))criteriaItems=row.value;break;
+          case 'personaList':  if(Array.isArray(row.value))personaList=row.value;break;
+        }
+      }catch(e){}
+    });
+  }catch(e){console.warn('[load] failed',e);}
+  _dataLoaded=true;
 }
 
