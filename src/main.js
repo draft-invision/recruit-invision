@@ -469,7 +469,7 @@ let apps=[
   {id:534,no:626,name:'岩田 雅矢',age:0,src:'Indeed',job:'CS',date:'2026-03-31',title:'',s1:'返事なし',s2:'',s3:'',s4:'',s5:'',memo:'18期',stage:'書類選考'}
 
 ];
-let nxtId=22;
+let nxtId=45;
 let sheets=[];
 let nxtK=13;
 var taskTemplates={
@@ -3285,6 +3285,33 @@ function saveIntDate(appId, field, val){
   render('detail');
 }
 
+// ===== PDF SEED DATA (19期 採用) =====
+var SEED_APPS=[
+  {id:22,no:22,name:'矢野 稜也',age:31,src:'Indeed',job:'CS',date:'2026-06-01',title:'',s1:'通過',s2:'',s3:'ミスマッチ',s4:'',s5:'',memo:'',stage:'不採用'},
+  {id:23,no:23,name:'Shota Ogawa',age:38,src:'Wantedly',job:'CS',date:'2026-06-02',title:'',s1:'返事なし',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'書類選考'},
+  {id:24,no:24,name:'中澁 未来',age:28,src:'Indeed',job:'CS',date:'2026-06-02',title:'',s1:'返事なし',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'書類選考'},
+  {id:25,no:25,name:'根岸 真由',age:23,src:'Wantedly',job:'CS',date:'2026-06-02',title:'',s1:'返事なし',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'書類選考'},
+  {id:26,no:26,name:'平 昌彦',age:51,src:'Wantedly',job:'CS',date:'2026-06-02',title:'',s1:'基準外',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'不採用'},
+  {id:27,no:27,name:'石橋 沙介',age:22,src:'Wantedly',job:'CS',date:'2026-06-03',title:'',s1:'通過',s2:'',s3:'ミスマッチ',s4:'',s5:'',memo:'',stage:'不採用'},
+  {id:28,no:28,name:'Naoki Shimohigoshi',age:26,src:'Wantedly',job:'セールス',date:'2026-06-04',title:'',s1:'返事なし',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'書類選考'},
+  {id:29,no:29,name:'土方 裕子',age:29,src:'Indeed',job:'CS',date:'2026-06-07',title:'',s1:'通過',s2:'',s3:'辞退',s4:'',s5:'',memo:'',stage:'不採用'},
+  {id:30,no:30,name:'鮎澤 愛美',age:23,src:'Wantedly',job:'CS',date:'2026-06-10',title:'',s1:'通過',s2:'',s3:'連絡済',s4:'',s5:'',memo:'',stage:'一次面談'},
+  {id:31,no:31,name:'秋葉 郁人',age:33,src:'Wantedly',job:'CS',date:'2026-06-10',title:'',s1:'基準外',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'不採用'},
+  {id:32,no:32,name:'岩見 旦',age:43,src:'Wantedly',job:'CS',date:'2026-06-11',title:'',s1:'返事なし',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'書類選考'},
+  {id:33,no:33,name:'松井 健',age:23,src:'Wantedly',job:'CS',date:'2026-06-14',title:'',s1:'返事なし',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'書類選考'},
+  {id:34,no:34,name:'岡部 なりえ',age:34,src:'Wantedly',job:'CS',date:'2026-06-17',title:'',s1:'返事なし',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'書類選考'},
+  {id:35,no:35,name:'福盛 達郎',age:27,src:'Wantedly',job:'CS',date:'2026-06-25',title:'',s1:'返事なし',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'書類選考'},
+  {id:36,no:36,name:'牧野 佐千子',age:44,src:'Wantedly',job:'CS',date:'2026-06-26',title:'',s1:'返事なし',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'書類選考'},
+  {id:37,no:37,name:'高木 みなこ',age:34,src:'Wantedly',job:'CS',date:'2026-06-27',title:'',s1:'返事なし',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'書類選考'},
+  {id:38,no:38,name:'kaneda aisa',age:28,src:'Wantedly',job:'CS',date:'2026-06-26',title:'',s1:'返事なし',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'書類選考'},
+  {id:39,no:39,name:'寺島 周作',age:36,src:'Wantedly',job:'CS',date:'2026-07-02',title:'',s1:'返事なし',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'書類選考'},
+  {id:40,no:40,name:'ko no',age:30,src:'Wantedly',job:'CS',date:'2026-07-06',title:'',s1:'返事なし',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'書類選考'},
+  {id:41,no:41,name:'合田 ヌイ',age:31,src:'Wantedly',job:'CS',date:'2026-07-16',title:'',s1:'',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'書類選考'},
+  {id:42,no:42,name:'宮脇 恵美',age:37,src:'Wantedly',job:'事務',date:'2026-07-19',title:'',s1:'',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'書類選考'},
+  {id:43,no:43,name:'あ あ',age:32,src:'Wantedly',job:'CS',date:'2026-07-20',title:'',s1:'',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'書類選考'},
+  {id:44,no:44,name:'宮田 恵里佳',age:35,src:'Wantedly',job:'CS',date:'2026-07-21',title:'',s1:'',s2:'',s3:'',s4:'',s5:'',memo:'',stage:'書類選考'},
+];
+
 // ===== SUPABASE DATA PERSISTENCE =====
 var _dataLoaded=false;
 var _persistTimer=null;
@@ -3322,8 +3349,16 @@ async function loadPersistedData(){
     (r.data||[]).forEach(function(row){
       try{
         switch(row.key){
-          case 'apps':         if(Array.isArray(row.value))apps=row.value;break;
-          case 'nxtId':        if(typeof row.value==='number')nxtId=row.value;break;
+          case 'apps':
+            if(Array.isArray(row.value)){
+              apps=row.value;
+              var _seen=new Set(apps.map(function(a){return a.id;}));
+              SEED_APPS.forEach(function(a){if(!_seen.has(a.id))apps.push(a);});
+              apps.sort(function(a,b){return a.id-b.id;});
+              apps.forEach(function(a,i){a.no=i+1;});
+            }
+            break;
+          case 'nxtId':        if(typeof row.value==='number')nxtId=Math.max(row.value,45);break;
           case 'nxtK':         if(typeof row.value==='number')nxtK=row.value;break;
           case 'sheets':       if(Array.isArray(row.value))sheets=row.value;break;
           case 'jobList':      if(Array.isArray(row.value)&&row.value.length)jobList=row.value;break;
